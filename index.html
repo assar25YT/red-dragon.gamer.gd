@@ -1,1126 +1,259 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="imagenes/MANDO.png">
-<title>RED DRAGON — Domina el Campo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --neon-blue: #ff2a2a;
-    --neon-purple: #ff7a00;
-    --neon-glow-blue: #ff2a2a88;
-    --neon-glow-purple: #ff7a0066;
-    --bg-dark: #0f0500;
-    --bg-mid: #1a0800;
-    --bg-card: rgba(255,60,0,0.03);
-    --border-glass: rgba(255,80,0,0.10);
-    --text-primary: #fff0e8;
-    --text-muted: #8a6a5a;
-    --grid-color: rgba(255,42,42,0.07);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background-color: var(--bg-dark);
-    color: var(--text-primary);
-    font-family: 'Rajdhani', sans-serif;
-    overflow-x: hidden;
-    cursor: crosshair;
-  }
-
-  /* ─── GRID BACKGROUND ─── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--grid-color) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ─── NOISE TEXTURE ─── */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.4;
-  }
-
-  /* ─── STICKY NAV ─── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 6%;
-    height: 82px;
-    background: rgba(5,5,15,0.75);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border-glass);
-    transition: background 0.3s;
-  }
-
-  .nav-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.2rem;
-    letter-spacing: 5px;
-    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-decoration: none;
-  }
-
-  .nav-logo span {
-    color: var(--neon-blue);
-    -webkit-text-fill-color: var(--neon-blue);
-    font-size: 0.68rem;
-    letter-spacing: 9px;
-    display: block;
-    margin-top: -7px;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 3rem;
-    list-style: none;
-  }
-
-  .nav-links a {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: color 0.2s;
-    position: relative;
-  }
-
-  .nav-links a::after {
-    content: '';
-    position: absolute;
-    bottom: -4px; left: 0;
-    width: 0; height: 1px;
-    background: var(--neon-blue);
-    transition: width 0.3s;
-    box-shadow: 0 0 8px var(--neon-blue);
-  }
-
-  .nav-links a:hover { color: var(--neon-blue); }
-  .nav-links a:hover::after { width: 100%; }
-
-  .nav-cta {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--bg-dark) !important;
-    background: var(--neon-blue);
-    padding: 10px 28px;
-    border-radius: 2px;
-    transition: all 0.3s !important;
-    box-shadow: 0 0 16px var(--neon-glow-blue);
-  }
-
-  .nav-cta::after { display: none !important; }
-  .nav-cta:hover {
-    background: var(--neon-purple) !important;
-    box-shadow: 0 0 24px var(--neon-glow-purple) !important;
-    color: #fff !important;
-  }
-
-  /* ─── HERO ─── */
-  #inicio {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    overflow: hidden;
-    z-index: 1;
-  }
-
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(200,30,0,0.18) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 80% 20%, rgba(255,100,0,0.12) 0%, transparent 60%),
-      linear-gradient(180deg, var(--bg-dark) 0%, rgba(20,5,0,0.6) 50%, var(--bg-dark) 100%);
-    z-index: 0;
-  }
-
-  /* Animated orbs */
-  .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    animation: orbFloat 8s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  .orb-1 {
-    width: 500px; height: 500px;
-    background: rgba(255,42,42,0.10);
-    top: -100px; left: -100px;
-    animation-delay: 0s;
-  }
-
-  .orb-2 {
-    width: 400px; height: 400px;
-    background: rgba(255,120,0,0.10);
-    bottom: -80px; right: -80px;
-    animation-delay: -4s;
-  }
-
-  @keyframes orbFloat {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-40px) scale(1.1); }
-  }
-
-  /* Field lines SVG in hero */
-  .hero-field {
-    position: absolute;
-    inset: 0;
-    opacity: 0.08;
-    background:
-      radial-gradient(ellipse 70% 40% at 50% 50%, rgba(255,42,42,0.5) 0%, transparent 60%);
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 2;
-    max-width: 900px;
-    padding: 0 5%;
-  }
-
-  .hero-tag {
-    display: inline-block;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    color: var(--neon-blue);
-    border: 1px solid rgba(255,42,42,0.4);
-    padding: 5px 16px;
-    margin-bottom: 2rem;
-    animation: fadeSlideUp 0.8s ease 0.2s both;
-  }
-
-  .hero-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(5rem, 14vw, 11rem);
-    line-height: 0.9;
-    letter-spacing: 6px;
-    animation: fadeSlideUp 0.8s ease 0.4s both;
-  }
-
-  .hero-title .line-blue {
-    background: linear-gradient(90deg, var(--neon-blue), #fff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: block;
-    filter: drop-shadow(0 0 30px rgba(0,212,255,0.4));
-  }
-
-  .hero-title .line-purple {
-    background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: block;
-    filter: drop-shadow(0 0 30px rgba(180,79,255,0.4));
-  }
-
-  .hero-sub {
-    font-size: 1.1rem;
-    color: var(--text-muted);
-    letter-spacing: 2px;
-    margin: 1.5rem 0 2.5rem;
-    font-weight: 400;
-    animation: fadeSlideUp 0.8s ease 0.6s both;
-  }
-
-  .btn-cta {
-    display: inline-block;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--bg-dark);
-    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-    padding: 16px 48px;
-    text-decoration: none;
-    border-radius: 2px;
-    position: relative;
-    transition: all 0.3s;
-    box-shadow: 0 0 30px var(--neon-glow-blue), 0 0 60px rgba(0,212,255,0.1);
-    animation: fadeSlideUp 0.8s ease 0.8s both;
-  }
-
-  .btn-cta:hover {
-    transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 0 50px var(--neon-glow-blue), 0 0 100px rgba(0,212,255,0.15);
-    color: #fff;
-  }
-
-  .btn-cta::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-    z-index: -1;
-    border-radius: 3px;
-    filter: blur(12px);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .btn-cta:hover::before { opacity: 0.7; }
-
-  .hero-scroll {
-    position: absolute;
-    bottom: 2.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    animation: fadeSlideUp 0.8s ease 1.2s both;
-  }
-
-  .hero-scroll span {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 4px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-  }
-
-  .scroll-line {
-    width: 1px;
-    height: 50px;
-    background: linear-gradient(180deg, var(--neon-blue), transparent);
-    animation: scrollPulse 2s ease-in-out infinite;
-  }
-
-  @keyframes scrollPulse {
-    0%, 100% { opacity: 0.3; transform: scaleY(1); }
-    50% { opacity: 1; transform: scaleY(1.2); }
-  }
-
-  @keyframes fadeSlideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ─── SECTIONS SHARED ─── */
-  section {
-    position: relative;
-    z-index: 1;
-    padding: 8rem 5%;
-  }
-
-  .section-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 6px;
-    text-transform: uppercase;
-    color: var(--neon-purple);
-    margin-bottom: 0.5rem;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
-
-  .section-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.8rem, 6vw, 5rem);
-    letter-spacing: 4px;
-    line-height: 1;
-    margin-bottom: 3.5rem;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s;
-  }
-
-  .section-title .accent { color: var(--neon-blue); }
-
-  .is-visible .section-label,
-  .is-visible .section-title { opacity: 1; transform: none; }
-
-  /* ─── PLAYERS GRID ─── */
-  #jugadores { background: rgba(10,10,26,0.5); }
-
-  .players-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .player-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-glass);
-    border-radius: 4px;
-    padding: 2rem 1.5rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    backdrop-filter: blur(10px);
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  .player-card.is-visible {
-    opacity: 1;
-    transform: none;
-  }
-
-  .player-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(180,79,255,0.06));
-    opacity: 0;
-    transition: opacity 0.4s;
-  }
-
-  .player-card::after {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: 4px;
-    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.4s;
-  }
-
-  .player-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 0 40px rgba(0,212,255,0.2), 0 20px 40px rgba(0,0,0,0.4);
-    border-color: transparent;
-  }
-
-  .player-card:hover::before { opacity: 1; }
-  .player-card:hover::after { opacity: 1; }
-
-  .player-avatar {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    margin: 0 auto 1rem;
-    background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(180,79,255,0.2));
-    border: 2px solid rgba(0,212,255,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .player-pos {
-    position: absolute;
-    top: -4px; right: -4px;
-    background: var(--neon-blue);
-    color: var(--bg-dark);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    padding: 2px 7px;
-    border-radius: 2px;
-  }
-
-  .player-name {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
-  }
-
-  .player-psn {
-    font-size: 0.78rem;
-    color: var(--neon-blue);
-    letter-spacing: 1px;
-    margin-bottom: 1.2rem;
-  }
-
-  .player-stats {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    border-top: 1px solid var(--border-glass);
-    padding-top: 1.2rem;
-  }
-
-  .stat {
-    text-align: center;
-  }
-
-  .stat-val {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
-    color: var(--neon-blue);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 0.6rem;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-  }
-
-  /* ─── FORMATION ─── */
-  #formacion {
-    background: var(--bg-dark);
-  }
-
-  .formation-wrapper {
-    display: flex;
-    gap: 4rem;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .formation-info {
-    flex: 1;
-    min-width: 260px;
-  }
-
-  .formation-badge {
-    display: inline-block;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 3rem;
-    letter-spacing: 6px;
-    color: var(--neon-blue);
-    border: 1px solid rgba(0,212,255,0.3);
-    padding: 10px 24px;
-    margin-bottom: 1.5rem;
-    box-shadow: inset 0 0 30px rgba(0,212,255,0.05), 0 0 20px rgba(0,212,255,0.1);
-  }
-
-  .formation-desc {
-    color: var(--text-muted);
-    font-size: 1rem;
-    line-height: 1.7;
-    letter-spacing: 0.5px;
-    margin-bottom: 2rem;
-  }
-
-  .role-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .role-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: 0.9rem;
-    font-family: 'Barlow Condensed', sans-serif;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .role-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--neon-blue);
-    box-shadow: 0 0 8px var(--neon-blue);
-    flex-shrink: 0;
-  }
-
-  .role-dot.purple { background: var(--neon-purple); box-shadow: 0 0 8px var(--neon-purple); }
-
-  /* Field */
-  .field-container {
-    flex: 1;
-    min-width: 280px;
-    max-width: 420px;
-  }
-
-  .field {
-    width: 100%;
-    aspect-ratio: 2/3;
-    background: linear-gradient(180deg,
-      rgba(0,30,10,0.8) 0%,
-      rgba(0,40,15,0.9) 50%,
-      rgba(0,30,10,0.8) 100%
-    );
-    border: 2px solid rgba(0,212,255,0.2);
-    border-radius: 6px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 0 40px rgba(0,212,255,0.08), inset 0 0 60px rgba(0,0,0,0.4);
-  }
-
-  /* Field lines */
-  .field::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      /* center line */
-      linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px) 0 50% / 100% 100% no-repeat,
-      /* Center circle */
-      radial-gradient(circle 60px at 50% 50%, transparent 58px, rgba(255,255,255,0.07) 60px, transparent 62px),
-      /* Penalty areas */
-      linear-gradient(transparent 5%, rgba(255,255,255,0.05) 5%, rgba(255,255,255,0.05) 5.2%, transparent 5.2%);
-  }
-
-  .field-stripe {
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      180deg,
-      rgba(255,255,255,0.02) 0px,
-      rgba(255,255,255,0.02) 40px,
-      transparent 40px,
-      transparent 80px
-    );
-  }
-
-  /* Field markings */
-  .field-center-line {
-    position: absolute;
-    top: 50%; left: 5%;
-    width: 90%; height: 1px;
-    background: rgba(255,255,255,0.12);
-    transform: translateY(-50%);
-  }
-
-  .field-center-circle {
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 100px; height: 100px;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .field-penalty-top, .field-penalty-bottom {
-    position: absolute;
-    left: 20%; width: 60%; height: 18%;
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-
-  .field-penalty-top { top: 4%; border-top: none; }
-  .field-penalty-bottom { bottom: 4%; border-bottom: none; }
-
-  /* Player dots on field */
-  .fp {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: default;
-  }
-
-  .fp-dot {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
-    border: 2px solid rgba(255,255,255,0.4);
-    box-shadow: 0 0 16px var(--neon-glow-blue), 0 0 30px rgba(0,212,255,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.55rem;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #fff;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-
-  .fp:hover .fp-dot {
-    transform: scale(1.3);
-    box-shadow: 0 0 30px var(--neon-blue), 0 0 60px rgba(0,212,255,0.3);
-  }
-
-  .fp-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.5rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.6);
-    white-space: nowrap;
-  }
-
-  /* 5-2-3 positions (top = attack, bottom = defense) */
-  /* GK */       .pos-gk  { left: 50%; top: 92%; }
-  /* DEF 5 */    .pos-rb  { left: 10%; top: 75%; }
-                 .pos-cb1 { left: 27%; top: 73%; }
-                 .pos-cb2 { left: 50%; top: 72%; }
-                 .pos-cb3 { left: 73%; top: 73%; }
-                 .pos-lb  { left: 90%; top: 75%; }
-  /* MID 2 */    .pos-mc1 { left: 35%; top: 53%; }
-                 .pos-mc2 { left: 65%; top: 53%; }
-  /* ATT 3 */    .pos-ed  { left: 18%; top: 25%; }
-                 .pos-st  { left: 50%; top: 18%; }
-                 .pos-ei  { left: 82%; top: 25%; }
-
-  /* ─── CONTACT ─── */
-  #contacto {
-    background: rgba(10,10,26,0.5);
-  }
-
-  .contact-wrapper {
-    max-width: 560px;
-    margin: 0 auto;
-  }
-
-  .glass-form {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border-glass);
-    border-radius: 4px;
-    padding: 3rem;
-    backdrop-filter: blur(20px);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .glass-form::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-purple), transparent);
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-    position: relative;
-  }
-
-  .form-group label {
-    display: block;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
-  }
-
-  .form-group input,
-  .form-group select {
-    width: 100%;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border-glass);
-    border-radius: 2px;
-    color: var(--text-primary);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1rem;
-    padding: 12px 16px;
-    outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    -webkit-appearance: none;
-  }
-
-  .form-group input::placeholder { color: rgba(122,122,154,0.5); }
-
-  .form-group input:focus,
-  .form-group select:focus {
-    border-color: var(--neon-blue);
-    box-shadow: 0 0 20px rgba(0,212,255,0.1), inset 0 0 10px rgba(0,212,255,0.05);
-  }
-
-  .form-group select option {
-    background: var(--bg-mid);
-    color: var(--text-primary);
-  }
-
-  .btn-submit {
-    width: 100%;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    color: var(--bg-dark);
-    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-    border: none;
-    padding: 16px;
-    border-radius: 2px;
-    cursor: crosshair;
-    transition: all 0.3s;
-    box-shadow: 0 0 30px rgba(0,212,255,0.2);
-    margin-top: 0.5rem;
-  }
-
-  .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 50px rgba(0,212,255,0.3), 0 10px 30px rgba(0,0,0,0.3);
-    filter: brightness(1.1);
-  }
-
-  /* ─── FOOTER ─── */
-  footer {
-    position: relative;
-    z-index: 1;
-    border-top: 1px solid var(--border-glass);
-    padding: 3rem 5%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .footer-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
-    letter-spacing: 6px;
-    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .footer-socials {
-    display: flex;
-    gap: 1.5rem;
-  }
-
-  .social-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px; height: 42px;
-    border: 1px solid var(--border-glass);
-    border-radius: 2px;
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: all 0.3s;
-    font-size: 1rem;
-    backdrop-filter: blur(10px);
-  }
-
-  .social-link:hover {
-    border-color: var(--neon-blue);
-    color: var(--neon-blue);
-    box-shadow: 0 0 20px rgba(0,212,255,0.2);
-    transform: translateY(-3px);
-  }
-
-  .footer-copy {
-    font-size: 0.75rem;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    opacity: 0.5;
-    font-family: 'Barlow Condensed', sans-serif;
-    text-transform: uppercase;
-  }
-
-  /* ─── MOBILE ─── */
-  .hamburger {
-    display: none;
-    flex-direction: column;
-    gap: 5px;
-    cursor: pointer;
-    padding: 5px;
-  }
-
-  .hamburger span {
-    display: block;
-    width: 24px; height: 2px;
-    background: var(--neon-blue);
-    border-radius: 2px;
-    transition: all 0.3s;
-  }
-
-  @media (max-width: 768px) {
-    .nav-links {
-      display: none;
-      position: absolute;
-      top: 68px; left: 0; right: 0;
-      flex-direction: column;
-      background: rgba(5,5,15,0.97);
-      backdrop-filter: blur(20px);
-      padding: 1.5rem;
-      gap: 1.2rem;
-      border-bottom: 1px solid var(--border-glass);
-    }
-
-    .nav-links.open { display: flex; }
-    .hamburger { display: flex; }
-
-    .formation-wrapper { flex-direction: column; }
-    .field-container { max-width: 100%; }
-
-    .players-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-
-    section { padding: 5rem 5%; }
-
-    .glass-form { padding: 2rem 1.5rem; }
-  }
-
-  /* ─── DIVIDERS ─── */
-  .divider {
-    position: relative;
-    z-index: 1;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.2), rgba(180,79,255,0.2), transparent);
-  }
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RED DRAGON — Domina el Campo</title>
+    <style>
+        :root {
+            --neon-blue: #ff2a2a;
+            --neon-purple: #ff7a00;
+            --neon-glow-blue: #ff2a2a88;
+            --neon-glow-purple: #ff7a0066;
+            --bg-dark: #0f0500;
+            --bg-mid: #1a0800;
+            --bg-card: rgba(255, 60, 0, 0.03);
+            --border-glass: rgba(255, 80, 0, 0.10);
+            --text-primary: #fff0e8;
+            --text-muted: #8a6a5a;
+            --grid-color: rgba(255, 42, 42, 0.07);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+
+        /* ─── GRID BACKGROUND ─── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── STICKY NAV ─── */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6%;
+            height: 82px;
+            background: rgba(5, 5, 15, 0.75);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .nav-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem;
+            letter-spacing: 5px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-actions { display: flex; gap: 1rem; align-items: center; }
+
+        .btn-nav {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 8px 20px;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-register {
+            background: transparent;
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+        }
+
+        .btn-register:hover {
+            background: var(--neon-blue);
+            color: white;
+            box-shadow: 0 0 15px var(--neon-glow-blue);
+        }
+
+        .btn-join {
+            background: var(--neon-blue);
+            color: var(--bg-dark);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 16px var(--neon-glow-blue);
+        }
+
+        /* ─── MODAL REGISTRO ─── */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: var(--bg-mid);
+            border: 1px solid var(--neon-blue);
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 0 30px var(--neon-glow-blue);
+        }
+
+        .modal-content h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--neon-blue);
+            letter-spacing: 2px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--text-muted); text-transform: uppercase; }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: white;
+            outline: none;
+        }
+        .form-group input:focus { border-color: var(--neon-blue); }
+
+        .btn-send {
+            width: 100%;
+            padding: 15px;
+            background: var(--neon-blue);
+            color: black;
+            border: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px; right: 15px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* ─── HERO & OTHERS (Simplificado para el ejemplo) ─── */
+        #inicio { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 8vw; }
+    </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav id="main-nav">
-  <a href="#inicio" class="nav-logo">
-    RED DRAGON
-    <span>FIFA 25 CLUB</span>
-  </a>
-  <ul class="nav-links" id="navLinks">
-    <li><a href="index.html">Inicio</a></li>
-    <li><a href="jugadores.html">Jugadores</a></li>
-    <li><a href="#formacion">Formación</a></li>
-    <li><a href="galeria.html">Galeria</a></li>
-    <li><a href="unete.html" class="nav-cta">Únete</a></li>
-  </ul>
-  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
-    <span></span><span></span><span></span>
-  </div>
-</nav>
+    <nav id="main-nav">
+        <a href="#" class="nav-logo">RED DRAGON<span>FIFA 25 CLUB</span></a>
+        <div class="nav-actions">
+            <button class="btn-nav btn-register" onclick="openModal()">Registrarse</button>
+            <a href="#contacto" class="btn-nav btn-join">Únete</a>
+        </div>
+    </nav>
 
-<!-- HERO -->
-<section id="inicio">
-  <div class="hero-bg"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="hero-field"></div>
-
-  <div class="hero-content">
-    <div class="hero-tag">🔥 FIFA 25 Competitive Club</div>
-    <h1 class="hero-title">
-      <span class="line-blue">Domina</span>
-      <span class="line-purple">el Campo</span>
-    </h1>
-    <p class="hero-sub">El equipo más letal de la escena. Sin piedad. Sin límites.</p>
-    <a href="unete.html" class="btn-cta">Únete al Club</a>
-  </div>
-
-  <div class="hero-scroll">
-    <span>Scroll</span>
-    <div class="scroll-line"></div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- FORMATION -->
-<section id="formacion">
-  <div class="section-label">Táctica Ofensiva</div>
-  <h2 class="section-title">Nuestra <span class="accent">Formación</span></h2>
-
-  <div class="formation-wrapper">
-    <div class="formation-info">
-      <div class="formation-badge">4 · 2 · 1 · 3</div>
-      <p class="formation-desc">
-        Sistema equilibrado con doble pivote defensivo que protege la zaga, 
-        un mediapunta creativo que conecta líneas y un tridente ofensivo letal. 
-        Transiciones rápidas y dominio del centro del campo.
-      </p>
-      <ul class="role-list">
-        <li class="role-item"><div class="role-dot"></div> 1 Portero</li>
-        <li class="role-item"><div class="role-dot"></div> 4 Defensas</li>
-        <li class="role-item"><div class="role-dot purple"></div> 2 Mediocentros</li>
-        <li class="role-item"><div class="role-dot purple"></div> 1 Mediapunta</li>
-        <li class="role-item"><div class="role-dot purple"></div> 3 Atacantes</li>
-      </ul>
+    <div id="modalRegistro" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2>CREAR CUENTA</h2>
+            <div class="form-group">
+                <label>Usuario (PSN/EA ID)</label>
+                <input type="text" id="reg_usuario" placeholder="Ej: Dragon_Gamer">
+            </div>
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" id="reg_email" placeholder="tu@correo.com">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="reg_password" placeholder="********">
+            </div>
+            <button class="btn-send" onclick="enviarRegistro()">Finalizar Registro</button>
+            <p id="mensaje" style="margin-top:10px; font-size:0.8rem; text-align:center;"></p>
+        </div>
     </div>
 
-    <div class="field-container">
-      <div class="field">
-        <div class="field-stripe"></div>
-        <div class="field-center-line"></div>
-        <div class="field-center-circle"></div>
-        <div class="field-penalty-top"></div>
-        <div class="field-penalty-bottom"></div>
+    <section id="inicio">
+        <div class="hero-content">
+            <h1 class="hero-title">DOMINA EL <span style="color:var(--neon-blue)">CAMPO</span></h1>
+            <p>FIFA 25 COMPETITIVE CLUB</p>
+        </div>
+    </section>
 
-        <!-- PORTERO -->
-        <div class="fp pos-gk">
-          <div class="fp-dot">POR</div>
-          <div class="fp-label">Portero</div>
-        </div>
-        
-        <!-- DEFENSAS -->
-        <div class="fp" style="left: 15%; top: 75%;">
-          <div class="fp-dot">RB</div><div class="fp-label">Lateral</div>
-        </div>
-        <div class="fp" style="left: 38%; top: 76%;">
-          <div class="fp-dot">CB</div><div class="fp-label">Central</div>
-        </div>
-        <div class="fp" style="left: 62%; top: 76%;">
-          <div class="fp-dot">CB</div><div class="fp-label">Central</div>
-        </div>
-        <div class="fp" style="left: 85%; top: 75%;">
-          <div class="fp-dot">LB</div><div class="fp-label">Lateral</div>
-        </div>
-        
-        <!-- DOBLE PIVOTE -->
-        <div class="fp" style="left: 35%; top: 58%;">
-          <div class="fp-dot">MCD</div><div class="fp-label">Contención</div>
-        </div>
-        <div class="fp" style="left: 65%; top: 58%;">
-          <div class="fp-dot">MCD</div><div class="fp-label">Contención</div>
-        </div>
+    <script>
+        // MODAL CONTROL
+        function openModal() { document.getElementById('modalRegistro').style.display = 'flex'; }
+        function closeModal() { document.getElementById('modalRegistro').style.display = 'none'; }
 
-        <!-- MEDIAPUNTA -->
-        <div class="fp" style="left: 50%; top: 45%;">
-          <div class="fp-dot">MCO</div><div class="fp-label">Creativo</div>
-        </div>
-        
-        <!-- ATAQUE -->
-        <div class="fp pos-ed">
-          <div class="fp-dot">ED</div><div class="fp-label">Extremo</div>
-        </div>
-        <div class="fp pos-st">
-          <div class="fp-dot">ST</div><div class="fp-label">Delantero</div>
-        </div>
-        <div class="fp pos-ei">
-          <div class="fp-dot">EI</div><div class="fp-label">Extremo</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+        // ENVIAR DATOS A INFINITYFREE
+        function enviarRegistro() {
+            const user = document.getElementById('reg_usuario').value;
+            const email = document.getElementById('reg_email').value;
+            const pass = document.getElementById('reg_password').value;
+            const msj = document.getElementById('mensaje');
 
-<!-- FOOTER REDES -->
-<footer>
-  <div class="footer-logo">RED DRAGON</div>
-  <div class="footer-socials">
-    <!-- TIKTOK -->
-    <a href="https://www.tiktok.com/@yisusoc" class="social-link" title="TikTok">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.31-.75.42-1.24 1.25-1.33 2.1-.1.7.1 1.41.53 1.98.5.73 1.36 1.13 2.24 1.1 1.49-.06 2.71-1.14 2.84-2.62.03-5.52.03-11.04.03-16.56z"/>
-      </svg>
-    </a>
-  </div>
-  <div class="footer-copy">© 2025 NEXUS FC · Todos los derechos reservados · FIFA 25 eSports Club</div>
-</footer>
+            if(!user || !email || !pass) {
+                msj.style.color = "yellow";
+                msj.innerText = "Por favor, completa todos los campos.";
+                return;
+            }
 
-<script>
-  // ─── MOBILE MENU ───
-  function toggleMenu() {
-    document.getElementById('navLinks').classList.toggle('open');
-  }
+            msj.style.color = "white";
+            msj.innerText = "Procesando...";
 
-  // Close menu on link click
-  document.querySelectorAll('.nav-links a').forEach(a => {
-    a.addEventListener('click', () => {
-      document.getElementById('navLinks').classList.remove('open');
-    });
-  });
+            const datos = {
+                usuario: user,
+                email: email,
+                password: pass
+            };
 
-  // ─── SCROLL ANIMATIONS ───
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        // Stagger children player cards
-        if (entry.target.classList.contains('players-grid')) {
-          entry.target.querySelectorAll('.player-card').forEach((card, i) => {
-            setTimeout(() => card.classList.add('is-visible'), i * 100);
-          });
+            // URL DE TU ARCHIVO PHP EN INFINITYFREE
+            fetch('https://red-dragon.gamer.gd/registro.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    msj.style.color = "#00ff00";
+                    msj.innerText = "¡Usuario registrado correctamente!";
+                    setTimeout(closeModal, 2000);
+                } else {
+                    msj.style.color = "#ff0000";
+                    msj.innerText = "Error: " + data.error;
+                }
+            })
+            .catch(err => {
+                msj.style.color = "#ff0000";
+                msj.innerText = "Error de conexión con el servidor.";
+                console.error(err);
+            });
         }
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('section, .players-grid').forEach(el => observer.observe(el));
-
-  // Make section labels and titles visible on scroll
-  const textObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.querySelectorAll('.section-label, .section-title').forEach(el => {
-          el.style.opacity = '1';
-          el.style.transform = 'none';
-        });
-      }
-    });
-  }, { threshold: 0.2 });
-
-  document.querySelectorAll('section').forEach(el => textObserver.observe(el));
-
-  // ─── NAV SCROLL EFFECT ───
-  window.addEventListener('scroll', () => {
-    const nav = document.getElementById('main-nav');
-    nav.style.background = window.scrollY > 50
-      ? 'rgba(5,5,15,0.95)'
-      : 'rgba(5,5,15,0.75)';
-  });
-
-  // ─── SUBMIT HANDLER ───
-  function handleSubmit(btn) {
-    btn.textContent = '✓ Solicitud Enviada';
-    btn.style.background = 'linear-gradient(90deg, #ff2a2a, #ff7a00)';
-    btn.style.color = '#05050f';
-    btn.style.cursor = 'default';
-    btn.disabled = true;
-  }
-
-  // ─── CURSOR TRAIL (desktop only) ───
-  if (window.innerWidth > 768) {
-    const trail = document.createElement('div');
-    trail.style.cssText = `
-      position:fixed; pointer-events:none; z-index:9999;
-      width:6px; height:6px; border-radius:50%;
-      background: var(--neon-blue);
-      box-shadow: 0 0 12px var(--neon-blue), 0 0 24px rgba(255,42,42,0.4);
-      transition: transform 0.1s ease;
-      mix-blend-mode: screen;
-    `;
-    document.body.appendChild(trail);
-
-    let mx = 0, my = 0;
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      trail.style.left = (mx - 3) + 'px';
-      trail.style.top = (my - 3) + 'px';
-    });
-  }
-</script>
+    </script>
 </body>
 </html>
